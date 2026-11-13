@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">WantokPay</string>
+    <string name="app_tagline">Digital Wallet &amp; Financial Services PNG</string>
+    <string name="action_settings">Settings &amp; Security</string>
+    <string name="action_notifications">Notifications</string>
+    <string name="action_language">Switch Language (Tok Pisin / English)</string>
+
+    <!-- Navigation Tabs -->
+    <string name="nav_wallet">Wallet</string>
+    <string name="nav_transfers">Transfers</string>
+    <string name="nav_merchant">Merchant &amp; Biz</string>
+    <string name="nav_community">Community</string>
+    <string name="nav_bills">Bills &amp; Utilities</string>
+    <string name="nav_agents">Agent Network</string>
+    <string name="nav_security_admin">Security &amp; Operations</string>
+
+    <!-- Common Action Strings -->
+    <string name="send_money">Send Money</string>
+    <string name="receive_money">Receive / QR</string>
+    <string name="cash_in">Cash In</string>
+    <string name="cash_out">Cash Out</string>
+    <string name="pay_bills">Pay Bills</string>
+    <string name="airtime_topup">Airtime &amp; Data</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    <string name="balance_hidden">••••••</string>
+    <string name="currency_symbol">K</string>
+</resources>

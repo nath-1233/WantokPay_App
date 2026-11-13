@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/walletDashboardFragment">
+
+    <fragment
+        android:id="@+id/walletDashboardFragment"
+        android:name="com.example.wantokpay.ui.WalletDashboardFragment"
+        android:label="WantokPay Wallet"
+        tools:layout="@layout/fragment_wallet_dashboard" />
+
+    <fragment
+        android:id="@+id/transfersFragment"
+        android:name="com.example.wantokpay.ui.TransfersFragment"
+        android:label="Transfers &amp; Payments"
+        tools:layout="@layout/fragment_transfers" />
+
+    <fragment
+        android:id="@+id/merchantHubFragment"
+        android:name="com.example.wantokpay.ui.MerchantHubFragment"
+        android:label="Merchant &amp; Business Plus"
+        tools:layout="@layout/fragment_merchant_hub" />
+
+    <fragment
+        android:id="@+id/communityFragment"
+        android:name="com.example.wantokpay.ui.CommunityFragment"
+        android:label="Community &amp; Group Funds"
+        tools:layout="@layout/fragment_community" />
+
+    <fragment
+        android:id="@+id/billsServicesFragment"
+        android:name="com.example.wantokpay.ui.BillsServicesFragment"
+        android:label="Bills &amp; Utilities"
+        tools:layout="@layout/fragment_bills_services" />
+
+    <fragment
+        android:id="@+id/agentNetworkFragment"
+        android:name="com.example.wantokpay.ui.AgentNetworkFragment"
+        android:label="Agent Network Locator"
+        tools:layout="@layout/fragment_agent_network" />
+
+    <fragment
+        android:id="@+id/securityAdminFragment"
+        android:name="com.example.wantokpay.ui.SecurityAdminFragment"
+        android:label="Trust, Security &amp; 47-Module Audit"
+        tools:layout="@layout/fragment_security_admin" />
+
+</navigation>

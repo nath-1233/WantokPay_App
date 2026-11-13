@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- WantokPay Brand Colors -->
+    <color name="brand_primary">#0D47A1</color>
+    <color name="brand_primary_dark">#002171</color>
+    <color name="brand_secondary">#FF6F00</color>
+    <color name="brand_accent">#00E676</color>
+    <color name="brand_gold">#FFD700</color>
+    <color name="brand_red">#D32F2F</color>
+
+    <!-- UI Surface and Background Colors -->
+    <color name="bg_main">#F4F6F9</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="text_primary">#1A1D20</color>
+    <color name="text_secondary">#6C757D</color>
+    <color name="text_muted">#A0A5AA</color>
+    <color name="divider_color">#E0E0E0</color>
+
+    <!-- Status Colors -->
+    <color name="status_success">#2E7D32</color>
+    <color name="status_pending">#F57C00</color>
+    <color name="status_failed">#C62828</color>
+    <color name="status_chip_bg">#E8F5E9</color>
+</resources>
