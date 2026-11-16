@@ -24,8 +24,4 @@
         android:id="@+id/agentNetworkFragment"
         android:icon="@android:drawable/ic_menu_mapmode"
         android:title="@string/nav_agents" />
-    <item
-        android:id="@+id/securityAdminFragment"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="@string/nav_security_admin" />
 </menu>
