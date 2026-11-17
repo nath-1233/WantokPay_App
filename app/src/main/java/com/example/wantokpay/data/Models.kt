@@ -30,11 +30,16 @@ data class UserProfile(
     val phoneNumber: String,
     val email: String,
     val role: UserRole = UserRole.INDIVIDUAL,
-    val verificationTier: VerificationTier = VerificationTier.TIER_1,
+    var verificationTier: VerificationTier = VerificationTier.TIER_1,
     val nidOrPassportNumber: String = "PNG-NID-8839210",
     val isBiometricEnabled: Boolean = true,
     val securityPinHash: String = "1234",
-    val preferredLanguage: String = "English" // English or Tok Pisin
+    val preferredLanguage: String = "English", // English or Tok Pisin
+    var accountStatus: UserAccountStatus = UserAccountStatus.ACTIVE,
+    var bankInstitution: BankInstitution? = null,
+    var bankAccountReference: String? = null,
+    var bankVerificationStatus: BankVerificationStatus = BankVerificationStatus.PENDING,
+    var isTwoFactorEnabled: Boolean = true
 )
 
 enum class TransactionType(val label: String) {
