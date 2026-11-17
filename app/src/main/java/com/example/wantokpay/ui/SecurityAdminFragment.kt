@@ -37,6 +37,7 @@ class SecurityAdminFragment : Fragment() {
 
         binding.btnUpgradeKyc.setOnClickListener {
             WantokPayRepository.currentUser = WantokPayRepository.currentUser.copy(verificationTier = VerificationTier.TIER_3)
+            WantokPayRepository.saveAccountData()
             updateKycUI()
             Snackbar.make(requireView(), "KYC Tier upgraded to Tier 3 Corporate (Limit: K100,000/day)", Snackbar.LENGTH_LONG).show()
         }

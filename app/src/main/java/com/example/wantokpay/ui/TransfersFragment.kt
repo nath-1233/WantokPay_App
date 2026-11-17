@@ -105,10 +105,17 @@ class TransfersFragment : Fragment() {
             .setView(editText)
             .setPositiveButton("Verify & Authorize") { _, _ ->
                 val pin = editText.text.toString()
-                if (pin == WantokPayRepository.currentUser.securityPinHash || pin == "1234") {
+                if (WantokPayRepository.currentUser.securityPinHash.isNotBlank() &&
+                    pin == WantokPayRepository.currentUser.securityPinHash
+                ) {
                     onPinSuccess()
                 } else {
-                    Toast.makeText(requireContext(), "Incorrect Security PIN. Authorization denied.", Toast.LENGTH_SHORT).show()
+                    val message = if (WantokPayRepository.currentUser.securityPinHash.isBlank()) {
+                        "A transaction PIN has not been configured. Authorization denied."
+                    } else {
+                        "Incorrect Security PIN. Authorization denied."
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)

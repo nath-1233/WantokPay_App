@@ -33,7 +33,7 @@ data class UserProfile(
     var verificationTier: VerificationTier = VerificationTier.TIER_1,
     val nidOrPassportNumber: String = "PNG-NID-8839210",
     val isBiometricEnabled: Boolean = true,
-    val securityPinHash: String = "1234",
+    val securityPinHash: String = "",
     val preferredLanguage: String = "English", // English or Tok Pisin
     var accountStatus: UserAccountStatus = UserAccountStatus.ACTIVE,
     var bankInstitution: BankInstitution? = null,
