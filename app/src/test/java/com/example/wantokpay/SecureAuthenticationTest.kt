@@ -6,6 +6,7 @@ import com.example.wantokpay.data.LoginCredentials
 import com.example.wantokpay.data.RegistrationRequest
 import com.example.wantokpay.data.UserRole
 import com.example.wantokpay.data.VerificationTier
+import com.example.wantokpay.repository.WantokPayRepository
 import com.example.wantokpay.security.WantokPayAuthService
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -82,5 +83,24 @@ class SecureAuthenticationTest {
         assertFalse(resetCode.isBlank())
         val newUser = authService.resetPassword(user.email, resetCode, "NewStrongPass#2028").getOrThrow()
         assertEquals(user.id, newUser.id)
+    }
+
+    @Test
+    fun accountSnapshotRestoresSavedDataWithoutDemoWalletBalance() {
+        WantokPayRepository.restoreAccountData(
+            "user-uuid",
+            "jane",
+            """{"profile":{"fullName":"Jane Doe","role":"INDIVIDUAL","verificationTier":"TIER_1","preferredLanguage":"English","accountStatus":"ACTIVE","bankVerificationStatus":"PENDING","isTwoFactorEnabled":true},"primaryWalletBalance":12.5,"inventoryItems":[{"name":"Rice","unitPriceKina":2.5,"stockQuantity":3,"category":"Food"}]}"""
+        )
+
+        assertEquals("Jane Doe", WantokPayRepository.currentUser.fullName)
+        assertEquals(12.5, WantokPayRepository.getWalletBalance(), 0.0)
+        assertEquals(1, WantokPayRepository.inventoryItems.size)
+        assertTrue(WantokPayRepository.getTransactions().isEmpty())
+
+        WantokPayRepository.restoreAccountData("new-user", "new-user", "{}")
+        assertEquals(0.0, WantokPayRepository.getWalletBalance(), 0.0)
+        assertTrue(WantokPayRepository.getTransactions().isEmpty())
+        assertTrue(WantokPayRepository.inventoryItems.isEmpty())
     }
 }

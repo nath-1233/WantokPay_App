@@ -112,6 +112,7 @@ class WalletDashboardFragment : Fragment() {
             .setItems(roleNames) { _, which ->
                 val selectedRole = roles[which]
                 WantokPayRepository.currentUser = WantokPayRepository.currentUser.copy(role = selectedRole)
+                WantokPayRepository.saveAccountData()
                 updateHeaderUI()
                 Toast.makeText(requireContext(), "Role updated to: ${selectedRole.displayName}", Toast.LENGTH_SHORT).show()
             }

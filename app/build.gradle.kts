@@ -5,6 +5,9 @@ plugins {
 android {
     namespace = "com.example.wantokpay"
     compileSdk = 37
+    val apiBaseUrl = providers.gradleProperty("WANTOKPAY_API_BASE_URL")
+        .orElse("https://api.example.invalid")
+        .get()
 
     defaultConfig {
         applicationId = "com.example.wantokpay"
@@ -14,9 +17,20 @@ android {
         versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "WANTOKPAY_API_BASE_URL",
+            "\"${apiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+        )
     }
-
     buildTypes {
+        debug {
+            buildConfigField(
+                "String",
+                "WANTOKPAY_API_BASE_URL",
+                "\"${providers.gradleProperty("WANTOKPAY_API_BASE_URL").orElse("http://10.0.2.2:8000").get().replace("\\", "\\\\").replace("\"", "\\\"")}\""
+            )
+        }
         release {
             optimization {
                 enable = false
@@ -29,6 +43,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -41,6 +56,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.material)
     implementation("de.mkammerer:argon2-jvm:2.11")
+    implementation("com.google.code.gson:gson:2.13.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

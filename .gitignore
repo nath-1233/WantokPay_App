@@ -13,3 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local backend credentials and Python artifacts
+backend/.env
+backend/.venv/
+backend/__pycache__/
+backend/.pytest_cache/
+backend/*.db
+__pycache__/
+.venv/
+.pytest_cache/

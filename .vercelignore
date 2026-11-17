@@ -1,0 +1,9 @@
+.git
+.gradle
+.idea
+.kotlin
+.pytest_cache
+__pycache__
+*.py[cod]
+app/build
+app/.gradle

@@ -28,6 +28,12 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController = navHostFragment.navController
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val showApp = destination.id != R.id.loginFragment
+            binding.appBarLayout.visibility = if (showApp) android.view.View.VISIBLE else android.view.View.GONE
+            binding.contentMain.bottomNavigation.visibility = if (showApp) android.view.View.VISIBLE else android.view.View.GONE
+            binding.fab.visibility = if (showApp) android.view.View.VISIBLE else android.view.View.GONE
+        }
 
         appBarConfiguration = AppBarConfiguration(
             setOf(

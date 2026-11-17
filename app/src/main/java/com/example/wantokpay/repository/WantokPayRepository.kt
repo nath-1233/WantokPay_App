@@ -1,7 +1,10 @@
 package com.example.wantokpay.repository
 
 import com.example.wantokpay.data.*
+import com.example.wantokpay.security.AccountDataSync
 import com.example.wantokpay.security.WantokPayAuthService
+import com.google.gson.Gson
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -21,8 +24,8 @@ object WantokPayRepository {
     )
 
     // Main wallet balances (Double entry ledger total calculation)
-    private var primaryWalletBalance: Double = 1450.75
-    private var merchantWalletBalance: Double = 8920.00
+    private var primaryWalletBalance: Double = 0.0
+    private var merchantWalletBalance: Double = 0.0
 
     fun getWalletBalance(): Double = primaryWalletBalance
     fun getMerchantBalance(): Double = merchantWalletBalance
@@ -284,6 +287,97 @@ object WantokPayRepository {
 
     fun getSupportedBanks(): List<BankInstitution> = authService.getSupportedBanks()
 
+    private data class AccountProfileData(
+        val fullName: String = "",
+        val phoneNumber: String = "",
+        val email: String = "",
+        val role: UserRole = UserRole.INDIVIDUAL,
+        val verificationTier: VerificationTier = VerificationTier.TIER_1,
+        val preferredLanguage: String = "English",
+        val accountStatus: UserAccountStatus = UserAccountStatus.ACTIVE,
+        val bankInstitution: BankInstitution? = null,
+        val bankAccountReference: String? = null,
+        val bankVerificationStatus: BankVerificationStatus = BankVerificationStatus.PENDING,
+        val isTwoFactorEnabled: Boolean = true
+    )
+
+    private data class AccountDataSnapshot(
+        val version: Int = 1,
+        val profile: AccountProfileData? = null,
+        val primaryWalletBalance: Double = 0.0,
+        val merchantWalletBalance: Double = 0.0,
+        val transactions: List<TransactionRecord>? = null,
+        val merchants: List<MerchantProfile>? = null,
+        val communityGroups: List<CommunityGroup>? = null,
+        val agents: List<AgentNode>? = null,
+        val scheduledPayments: List<ScheduledPayment>? = null,
+        val inventoryItems: List<InventoryItem>? = null,
+        val businessInvoices: List<BusinessInvoice>? = null,
+        val bookkeepingRecords: List<BookkeepingRecord>? = null,
+        val disputeTickets: List<DisputeTicket>? = null
+    )
+
+    fun restoreAccountData(userId: String, username: String, savedData: String) {
+        val snapshot = Gson().fromJson(savedData, AccountDataSnapshot::class.java)
+            ?: AccountDataSnapshot()
+        val profile = snapshot.profile ?: AccountProfileData()
+        currentUser = UserProfile(
+            id = userId,
+            fullName = profile.fullName.ifBlank { username },
+            phoneNumber = profile.phoneNumber,
+            email = profile.email,
+            role = profile.role,
+            verificationTier = profile.verificationTier,
+            preferredLanguage = profile.preferredLanguage,
+            accountStatus = profile.accountStatus,
+            bankInstitution = profile.bankInstitution,
+            bankAccountReference = profile.bankAccountReference,
+            bankVerificationStatus = profile.bankVerificationStatus,
+            isTwoFactorEnabled = profile.isTwoFactorEnabled
+        )
+        primaryWalletBalance = snapshot.primaryWalletBalance.coerceAtLeast(0.0)
+        merchantWalletBalance = snapshot.merchantWalletBalance.coerceAtLeast(0.0)
+        transactionsList.replaceWith(snapshot.transactions)
+        merchantsList.replaceWith(snapshot.merchants)
+        communityGroupsList.replaceWith(snapshot.communityGroups)
+        agentsList.replaceWith(snapshot.agents)
+        scheduledPayments.replaceWith(snapshot.scheduledPayments)
+        inventoryItems.replaceWith(snapshot.inventoryItems)
+        businessInvoices.replaceWith(snapshot.businessInvoices)
+        bookkeepingRecords.replaceWith(snapshot.bookkeepingRecords)
+        disputeTickets.replaceWith(snapshot.disputeTickets)
+    }
+
+    fun saveAccountData() {
+        val snapshot = AccountDataSnapshot(
+            profile = AccountProfileData(
+                fullName = currentUser.fullName,
+                phoneNumber = currentUser.phoneNumber,
+                email = currentUser.email,
+                role = currentUser.role,
+                verificationTier = currentUser.verificationTier,
+                preferredLanguage = currentUser.preferredLanguage,
+                accountStatus = currentUser.accountStatus,
+                bankInstitution = currentUser.bankInstitution,
+                bankAccountReference = currentUser.bankAccountReference,
+                bankVerificationStatus = currentUser.bankVerificationStatus,
+                isTwoFactorEnabled = currentUser.isTwoFactorEnabled
+            ),
+            primaryWalletBalance = primaryWalletBalance,
+            merchantWalletBalance = merchantWalletBalance,
+            transactions = transactionsList.toList(),
+            merchants = merchantsList.toList(),
+            communityGroups = communityGroupsList.toList(),
+            agents = agentsList.toList(),
+            scheduledPayments = scheduledPayments.toList(),
+            inventoryItems = inventoryItems.toList(),
+            businessInvoices = businessInvoices.toList(),
+            bookkeepingRecords = bookkeepingRecords.toList(),
+            disputeTickets = disputeTickets.toList()
+        )
+        AccountDataSync.save(JSONObject(Gson().toJson(snapshot)))
+    }
+
     fun registerUser(
         fullName: String,
         phoneNumber: String,
@@ -351,6 +445,7 @@ object WantokPayRepository {
             if (updatedUser != null) {
                 currentUser = updatedUser
             }
+            saveAccountData()
         }
         return result
     }
@@ -392,6 +487,7 @@ object WantokPayRepository {
         )
 
         transactionsList.add(0, tx)
+        saveAccountData()
         return Result.success(tx)
     }
 
@@ -422,6 +518,7 @@ object WantokPayRepository {
         )
 
         transactionsList.add(0, tx)
+        saveAccountData()
         return Result.success(tx)
     }
 
@@ -452,6 +549,7 @@ object WantokPayRepository {
         )
 
         transactionsList.add(0, tx)
+        saveAccountData()
         return Result.success(tx)
     }
 
@@ -486,6 +584,7 @@ object WantokPayRepository {
         )
 
         transactionsList.add(0, tx)
+        saveAccountData()
         return Result.success(tx)
     }
 
@@ -525,17 +624,20 @@ object WantokPayRepository {
         )
 
         transactionsList.add(0, tx)
+        saveAccountData()
         return Result.success(tx)
     }
 
     // Add new inventory item
     fun addInventoryItem(name: String, price: Double, qty: Int, category: String) {
         inventoryItems.add(InventoryItem(name = name, unitPriceKina = price, stockQuantity = qty, category = category))
+        saveAccountData()
     }
 
     // Add new invoice
     fun addInvoice(customerName: String, amount: Double, dueDate: String) {
         businessInvoices.add(BusinessInvoice(customerName = customerName, amountKina = amount, dueDate = dueDate))
+        saveAccountData()
     }
 
     // Add dispute
@@ -543,6 +645,12 @@ object WantokPayRepository {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US)
         val ticket = DisputeTicket(transactionRef = txRef, reason = reason, createdAt = dateFormat.format(Date()))
         disputeTickets.add(0, ticket)
+        saveAccountData()
         return ticket
     }
+}
+
+private fun <T> MutableList<T>.replaceWith(items: List<T>?) {
+    clear()
+    addAll(items.orEmpty())
 }
