@@ -1,10 +1,13 @@
 package com.example.wantokpay.repository
 
 import com.example.wantokpay.data.*
+import com.example.wantokpay.security.WantokPayAuthService
 import java.text.SimpleDateFormat
 import java.util.*
 
 object WantokPayRepository {
+
+    private val authService = WantokPayAuthService()
 
     // Current logged in user profile
     var currentUser: UserProfile = UserProfile(
@@ -12,7 +15,9 @@ object WantokPayRepository {
         phoneNumber = "+675 7123 4567",
         email = "samuel.karani@wantokpay.com.pg",
         role = UserRole.INDIVIDUAL,
-        verificationTier = VerificationTier.TIER_2
+        verificationTier = VerificationTier.TIER_2,
+        accountStatus = UserAccountStatus.ACTIVE,
+        bankVerificationStatus = BankVerificationStatus.PENDING
     )
 
     // Main wallet balances (Double entry ledger total calculation)
@@ -276,6 +281,79 @@ object WantokPayRepository {
     fun getMerchants(): List<MerchantProfile> = merchantsList.toList()
     fun getCommunityGroups(): List<CommunityGroup> = communityGroupsList.toList()
     fun getAgents(): List<AgentNode> = agentsList.toList()
+
+    fun getSupportedBanks(): List<BankInstitution> = authService.getSupportedBanks()
+
+    fun registerUser(
+        fullName: String,
+        phoneNumber: String,
+        email: String,
+        password: String,
+        confirmPassword: String,
+        acceptedTerms: Boolean = true,
+        role: UserRole = UserRole.INDIVIDUAL,
+        verificationTier: VerificationTier = VerificationTier.TIER_1
+    ): Result<UserProfile> {
+        val result = authService.registerUser(
+            RegistrationRequest(
+                fullName = fullName,
+                phoneNumber = phoneNumber,
+                email = email,
+                password = password,
+                confirmPassword = confirmPassword,
+                acceptedTerms = acceptedTerms,
+                role = role,
+                verificationTier = verificationTier
+            )
+        )
+        if (result.isSuccess) {
+            val created = result.getOrNull()
+            if (created != null) {
+                currentUser = created
+            }
+        }
+        return result
+    }
+
+    fun loginWithCredentials(identifier: String, password: String): Result<AuthChallenge> = authService.login(
+        LoginCredentials(identifier = identifier, password = password)
+    )
+
+    fun verifyLoginOtp(challengeId: String, otp: String): Result<AuthSession> {
+        val result = authService.verifyOtp(challengeId, otp)
+        if (result.isSuccess) {
+            val session = result.getOrNull() ?: return Result.failure(IllegalStateException("Missing session."))
+            val user = authService.getUserByIdentifier(currentUser.email)
+            if (user != null) {
+                currentUser = user
+            }
+            currentUser.accountStatus = UserAccountStatus.ACTIVE
+            currentUser.isTwoFactorEnabled = true
+            currentUser.bankVerificationStatus = currentUser.bankVerificationStatus
+            return Result.success(session)
+        }
+        return result
+    }
+
+    fun forgotPassword(identifier: String): Result<String> = authService.forgotPassword(identifier)
+
+    fun resetPassword(identifier: String, resetCode: String, newPassword: String): Result<UserProfile> = authService.resetPassword(identifier, resetCode, newPassword)
+
+    fun verifyBankAccount(
+        institution: BankInstitution,
+        accountNumber: String,
+        userId: String = currentUser.id,
+        consentGiven: Boolean = true
+    ): Result<BankAccountVerification> {
+        val result = authService.verifyBankAccount(userId, institution, accountNumber, consentGiven)
+        if (result.isSuccess) {
+            val updatedUser = authService.getUserByIdentifier(currentUser.email)
+            if (updatedUser != null) {
+                currentUser = updatedUser
+            }
+        }
+        return result
+    }
 
     // Execute Money Transfer (Double-entry accounting, limit check, fee calculation)
     fun processTransfer(
